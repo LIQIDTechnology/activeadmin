@@ -20,7 +20,7 @@ Then /^the (\d+)(?:st|nd|rd|th) batch action should be "([^"]*)"$/ do |index, ti
 end
 
 When /^I check the (\d+)(?:st|nd|rd|th) record$/ do |index|
-  page.all("table.index_table input[type=checkbox]")[index.to_i].set true
+  page.all("table.index-table input[type=checkbox]")[index.to_i].set true
 end
 
 When /^I toggle the collection selection$/ do
@@ -28,12 +28,12 @@ When /^I toggle the collection selection$/ do
 end
 
 Then /^I should see that the batch action button is disabled$/ do
-  expect(page).to have_css ".batch_actions_selector .dropdown_menu_button.disabled"
+  expect(page).to have_css ".batch_actions_selector .button.disabled"
 end
 
 Then /^I (should|should not) see the batch action (button|selector)$/ do |maybe, type|
-  selector = "div.table_tools .batch_actions_selector"
-  selector << ' .dropdown_menu_button' if maybe == 'should' && type == 'button'
+  selector = "div.table-tools .batch_actions_selector"
+  selector << ' .button' if maybe == 'should' && type == 'button'
 
   verb = maybe == 'should' ? :to : :to_not
   expect(page).send verb, have_css(selector)
@@ -46,7 +46,7 @@ end
 Given /^I submit the batch action form with "([^"]*)"$/ do |action|
   page.find("#batch_action").set action
   form   = page.find "#collection_selection"
-  params = page.all("#main_content input").each_with_object({}) do |input, obj|
+  params = page.all(".main-content input").each_with_object({}) do |input, obj|
     key, value = input['name'], input['value']
     if key == 'collection_selection[]'
       (obj[key] ||= []).push value if input.checked?

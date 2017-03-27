@@ -2,19 +2,16 @@ module ActiveAdmin
   module Views
     # Build a StatusTag
     class StatusTag < ActiveAdmin::Component
+      FALSE_VALUES = [nil, false, 0, '0', 'f', 'F', 'false', 'FALSE', 'off', 'OFF']
+
       builder_method :status_tag
 
       def tag_name
         'span'
       end
 
-      def default_class_name
-        'status_tag'
-      end
-
-      # @overload status_tag(status, type = nil, options = {})
+      # @overload status_tag(status, options = {})
       #   @param [String] status the status to display. One of the span classes will be an underscored version of the status.
-      #   @param [Symbol] type type of status. Will become a class of the span. ActiveAdmin provide style for :ok, :warning and :error.
       #   @param [Hash] options
       #   @option options [String] :class to override the default class
       #   @option options [String] :id to override the default id
@@ -23,20 +20,13 @@ module ActiveAdmin
       #
       # @example
       #   status_tag('In Progress')
-      #   # => <span class='status_tag in_progress'>In Progress</span>
+      #   # => <span class='status-tag in_progress'>In Progress</span>
       #
       # @example
-      #   status_tag('active', :ok)
-      #   # => <span class='status_tag active ok'>Active</span>
+      #   status_tag('active', class: 'important', id: 'status_123', label: 'on')
+      #   # => <span class='status-tag active important' id='status_123'>on</span>
       #
-      # @example
-      #   status_tag('active', :ok, class: 'important', id: 'status_123', label: 'on')
-      #   # => <span class='status_tag active ok important' id='status_123'>on</span>
-      #
-      def build(*args)
-        options = args.extract_options!
-        status = args[0]
-        type = args[1]
+      def build(status, options = {})
         label = options.delete(:label)
         classes = options.delete(:class)
         status = convert_to_boolean_status(status)
@@ -50,7 +40,6 @@ module ActiveAdmin
         super(content, options)
 
         add_class(status_to_class(status)) if status
-        add_class(type.to_s) if type
         add_class(classes) if classes
       end
 
@@ -60,7 +49,7 @@ module ActiveAdmin
         case status
         when true, 'true'
           'Yes'
-        when false, 'false', nil
+        when *FALSE_VALUES
           'No'
         else
           status

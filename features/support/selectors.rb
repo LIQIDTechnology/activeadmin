@@ -24,10 +24,10 @@ module HtmlSelectorsHelpers
     #    [:xpath, "//header"]
 
     when "index grid"
-      [:css, "table.index_grid"]
+      [:css, "table.index-grid"]
 
     when /^the "([^"]*)" sidebar$/
-      [:css, "##{$1.tr(" ", '').underscore}_sidebar_section"]
+      [:css, "##{$1.tr(" ", '').parameterize}-sidebar-section"]
 
     # This allows you to provide a quoted selector as the scope
     # for "within" steps as was previously the default for the

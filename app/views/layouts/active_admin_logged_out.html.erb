@@ -25,13 +25,15 @@
 
   <div id="content_wrapper">
     <% flash_messages.each do |type, message| %>
-      <%= content_tag :div, message, class: "flash flash_#{type}" %>
+      <%= content_tag :div, message, class: "flash flash-#{type}" %>
     <% end %>
-    <div id="active_admin_content">
-      <%= yield %>
+    <div id="active-admin-content">
+      <div class="devise-form-container">
+        <%= yield %>
+      </div>
     </div>
   </div>
-  <div id="footer">
+  <div id="footer" class="footer">
     <%= yield :footer %>
   </div>
 </div>

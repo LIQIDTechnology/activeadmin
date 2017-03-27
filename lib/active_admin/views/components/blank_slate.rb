@@ -5,11 +5,23 @@ module ActiveAdmin
       builder_method :blank_slate
 
       def default_class_name
-        'blank_slate_container'
+        'blank-slate-container'
       end
 
-      def build(content)
-        super(span(content.html_safe, class: "blank_slate"))
+      def build(content="")
+        @contents = div(content.html_safe, class: "blank-slate")
+      end
+
+      def add_child(child)
+        if @contents
+          @contents << child
+        else
+          super
+        end
+      end
+
+      def children?
+        @contents.children?
       end
 
     end

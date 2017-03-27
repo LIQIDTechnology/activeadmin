@@ -37,7 +37,7 @@ RSpec.describe ActiveAdmin::Filters::ViewHelper do
     let(:body) { Capybara.string(filter :title) }
 
     it "should generate a form which submits via get" do
-      expect(body).to have_selector("form.filter_form[method=get]")
+      expect(body).to have_selector("form.filter-form[method=get]")
     end
 
     it "should generate a filter button" do
@@ -49,7 +49,7 @@ RSpec.describe ActiveAdmin::Filters::ViewHelper do
     end
 
     it "should generate a clear filters link" do
-      expect(body).to have_selector("a.clear_filters_btn", text: "Clear Filters")
+      expect(body).to have_selector("a.button-default", text: "Clear Filters")
     end
 
     describe "label as proc" do
@@ -166,9 +166,6 @@ RSpec.describe ActiveAdmin::Filters::ViewHelper do
     it "should generate a date greater than" do
       expect(body).to have_selector("input.datepicker[name='q[published_date_gteq]']")
     end
-    it "should generate a seperator" do
-      expect(body).to have_selector("span.seperator")
-    end
     it "should generate a date less than" do
       expect(body).to have_selector("input.datepicker[name='q[published_date_lteq]']")
     end
@@ -179,9 +176,6 @@ RSpec.describe ActiveAdmin::Filters::ViewHelper do
 
     it "should generate a date greater than" do
       expect(body).to have_selector("input.datepicker[name='q[created_at_gteq_datetime]']")
-    end
-    it "should generate a seperator" do
-      expect(body).to have_selector("span.seperator")
     end
     it "should generate a date less than" do
       expect(body).to have_selector("input.datepicker[name='q[created_at_lteq_datetime]']")

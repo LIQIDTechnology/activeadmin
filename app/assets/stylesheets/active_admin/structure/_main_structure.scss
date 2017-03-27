@@ -1,29 +1,29 @@
-#wrapper {
+.active-admin-content {
+  @include clearfix;
+  padding: $horizontal-page-margin;
+
+  // so index table and filters scroll horizontally
+  &.with-sidebar {
+    display: table;
+    width: 100%;
+  }
+}
+
+.main-content-wrapper {
+  float: left;
   width: 100%;
 }
 
-.index #wrapper {
-  display: table;
+.main-content {
+  margin-right: $sidebar-width + $horizontal-page-margin;
 }
 
-#active_admin_content {
-  margin: 0;
-  padding: $horizontal-page-margin;
+.without-sidebar .main-content {
+  margin-right: 0;
+}
 
-  #main_content_wrapper {
-    float: left;
-    width: 100%;
-
-    #main_content{
-      margin-right: 300px;
-    }
-  }
-
-  &.without_sidebar #main_content_wrapper #main_content{ margin-right: 0; }
-
-  #sidebar {
-    float: left;
-    width: $sidebar-width;
-    margin-left: -$sidebar-width;
-  }
+.sidebar-wrapper {
+  float: left;
+  margin-left: -$sidebar-width;
+  width: $sidebar-width;
 }

@@ -60,9 +60,9 @@ RSpec.describe ActiveAdmin::Views::AttributesTable do
       context context_title do
         let(:table) { instance_eval &table_decleration }
 
-        it "should render a div wrapper with the class '.attributes_table'" do
+        it "should render a div wrapper with the class '.attributes-table'" do
           expect(table.tag_name).to eq 'div'
-          expect(table.attr(:class)).to include('attributes_table')
+          expect(table.attr(:class)).to include('attributes-table')
         end
 
         it "should add id and type class" do
@@ -78,7 +78,7 @@ RSpec.describe ActiveAdmin::Views::AttributesTable do
           [
             ["Id" , "1"],
             ["Title" , "Hello World"],
-            ["Body" , "<span class=\"empty\">Empty</span>"]
+            ["Body" , "<span class=\"empty-value\">Empty</span>"]
           ].each_with_index do |(title, content), i|
             describe "for #{title}" do
               let(:current_row){ table.find_by_tag("tr")[i] }

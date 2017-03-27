@@ -1,9 +1,9 @@
 Then /^I should see a member link to "([^"]*)"$/ do |name|
-  expect(page).to have_css('a.member_link', text: name)
+  expect(page).to have_css('a.member-link', text: name)
 end
 
 Then /^I should not see a member link to "([^"]*)"$/ do |name|
-  %{Then I should not see "#{name}" within "a.member_link"}
+  %{Then I should not see "#{name}" within "a.member-link"}
 end
 
 Then /^I should see the actions column with the class "([^"]*)" and the title "([^"]*)"$/ do |klass, title|
@@ -11,10 +11,9 @@ Then /^I should see the actions column with the class "([^"]*)" and the title "(
 end
 
 Then /^I should see a dropdown menu item to "([^"]*)"$/ do |name|
-  expect(page).to have_css('ul.dropdown_menu_list li a', text: name)
+  expect(page).to have_css('ul.dropdown-menu li a', text: name)
 end
 
 Then /^I should not see a dropdown menu item to "([^"]*)"$/ do |name|
-  %{Then I should not see "#{name}" within "ul.dropdown_menu_list li a"}
+  %{Then I should not see "#{name}" within "ul.dropdown-menu li a"}
 end
-

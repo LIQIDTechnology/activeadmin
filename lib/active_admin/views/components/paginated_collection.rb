@@ -66,10 +66,10 @@ module ActiveAdmin
       protected
 
       def build_pagination_with_formats(options)
-        div id: "index_footer" do
+        div class: "index-footer" do
           build_per_page_select if @per_page.is_a?(Array)
           build_pagination
-          div(page_entries_info(options).html_safe, class: "pagination_information")
+          div(page_entries_info(options).html_safe, class: "pagination-information")
 
           download_links = @download_links.is_a?(Proc) ? instance_exec(&@download_links) : @download_links
 
@@ -82,7 +82,7 @@ module ActiveAdmin
       end
 
       def build_per_page_select
-        div class: "pagination_per_page" do
+        div class: "pagination-per-page js-pagination-per-page" do
           text_node "Per page:"
           select do
             @per_page.each do |per_page|

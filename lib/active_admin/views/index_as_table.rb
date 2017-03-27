@@ -71,7 +71,7 @@ module ActiveAdmin
     #   selectable_column
     #   column :title
     #   actions do |post|
-    #     item "Preview", admin_preview_post_path(post), class: "member_link"
+    #     item "Preview", admin_preview_post_path(post), class: "member-link"
     #   end
     # end
     # ```
@@ -213,7 +213,7 @@ module ActiveAdmin
         table_options = {
           id: "index_table_#{active_admin_config.resource_name.plural}",
           sortable: true,
-          class: "index_table index",
+          class: "index-table js-index-table",
           i18n: active_admin_config.resource_class,
           paginator: page_presenter[:paginator] != false,
           row_class: page_presenter[:row_class]
@@ -334,7 +334,7 @@ module ActiveAdmin
               end
             else
               table_actions do
-                defaults(resource, css_class: :member_link) if defaults
+                defaults(resource, css_class: 'member-link') if defaults
                 if block_given?
                   block_result = instance_exec(resource, &block)
                   text_node block_result unless block_result.is_a? Arbre::Element
