@@ -2,7 +2,7 @@ require 'rails_helper'
 require File.expand_path('config_shared_examples', File.dirname(__FILE__))
 
 module ActiveAdmin
-  describe Resource do
+  RSpec.describe Resource do
 
     it_should_behave_like "ActiveAdmin::Resource"
     before { load_defaults! }
@@ -148,6 +148,8 @@ module ActiveAdmin
 
 
     describe "sort order" do
+      class MockResource
+      end
 
       context "when resource class responds to primary_key" do
         it "should sort by primary key desc by default" do
@@ -234,8 +236,10 @@ module ActiveAdmin
       before do
         if Rails::VERSION::MAJOR >= 4
           allow(Post).to receive(:find_by).with("id" => "12345") { post }
+          allow(Post).to receive(:find_by).with("id" => "54321") { nil }
         else
           allow(Post).to receive(:find_by_id).with("12345") { post }
+          allow(Post).to receive(:find_by_id).with("54321") { nil }
         end
       end
 
@@ -247,6 +251,10 @@ module ActiveAdmin
         let(:resource) { namespace.register(Post) { decorate_with PostDecorator } }
         it 'decorates the resource' do
           expect(resource.find_resource('12345')).to eq PostDecorator.new(post)
+        end
+
+        it 'does not decorate a not found resource' do
+          expect(resource.find_resource('54321')).to equal nil
         end
       end
 

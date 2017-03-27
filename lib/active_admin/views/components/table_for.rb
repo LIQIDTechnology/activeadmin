@@ -85,7 +85,7 @@ module ActiveAdmin
         @tbody = tbody do
           # Build enough rows for our collection
           @collection.each do |elem|
-            classes = [cycle('odd', 'even')]
+            classes = [helpers.cycle('odd', 'even')]
 
             if @row_class
               classes << @row_class.call(elem)
@@ -98,7 +98,7 @@ module ActiveAdmin
 
       def build_table_cell(col, resource)
         td class: col.html_class do
-          html = format_attribute(resource, col.data)
+          html = helpers.format_attribute(resource, col.data)
           # Don't add the same Arbre twice, while still allowing format_attribute to call status_tag
           current_arbre_element << html unless current_arbre_element.children.include? html
         end
@@ -109,7 +109,7 @@ module ActiveAdmin
       #   current_sort[1] #=> asc | desc
       def current_sort
         @current_sort ||= begin
-          order_clause = OrderClause.new params[:order]
+          order_clause = active_admin_config.order_clause.new(active_admin_config, params[:order])
 
           if order_clause.valid?
             [order_clause.field, order_clause.order]

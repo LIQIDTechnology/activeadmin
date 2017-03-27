@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ActiveAdmin, "Routing", type: :routing do
+RSpec.describe ActiveAdmin, "Routing", type: :routing do
 
   before do
     load_defaults!
@@ -14,8 +14,10 @@ describe ActiveAdmin, "Routing", type: :routing do
     reload_routes!
   end
 
+  let(:namespaces) { ActiveAdmin.application.namespaces }
+
   it "should only have the namespaces necessary for route testing" do
-    expect(ActiveAdmin.application.namespaces.names).to eq [:admin, :root]
+    expect(namespaces.names).to eq [:admin]
   end
 
   it "should route to the admin dashboard" do
@@ -26,6 +28,24 @@ describe ActiveAdmin, "Routing", type: :routing do
     context "when in admin namespace" do
       it "should be admin_root_path" do
         expect(admin_root_path).to eq "/admin"
+      end
+    end
+  end
+
+  describe "route_options" do
+    context "with a custom path set in route_options" do
+      before do
+        namespaces[:admin].route_options = { path: '/custom-path' }
+        reload_routes!
+      end
+
+      after do
+        namespaces[:admin].route_options = {}
+        reload_routes!
+      end
+
+      it "should route using the custom path" do
+        expect(admin_posts_path).to eq "/custom-path/posts"
       end
     end
   end
@@ -52,6 +72,10 @@ describe ActiveAdmin, "Routing", type: :routing do
     context "when in root namespace" do
       before(:each) do
         load_resources { ActiveAdmin.register(Post, namespace: false) }
+      end
+
+      after(:each) do
+        namespaces.instance_variable_get(:@namespaces).delete(:root)
       end
 
       it "should route the index path" do
@@ -165,6 +189,10 @@ describe ActiveAdmin, "Routing", type: :routing do
     context "when in the root namespace" do
       before(:each) do
         load_resources { ActiveAdmin.register_page("Chocolate I lØve You!", namespace: false) }
+      end
+
+      after(:each) do
+        namespaces.instance_variable_get(:@namespaces).delete(:root)
       end
 
       it "should route to page under /" do

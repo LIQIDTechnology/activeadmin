@@ -10,6 +10,7 @@ require 'active_admin/resource/includes'
 require 'active_admin/resource/scope_to'
 require 'active_admin/resource/sidebars'
 require 'active_admin/resource/belongs_to'
+require 'active_admin/resource/ordering'
 
 module ActiveAdmin
 
@@ -50,6 +51,9 @@ module ActiveAdmin
     # Set breadcrumb builder
     attr_writer :breadcrumb
 
+    #Set order clause
+    attr_writer :order_clause
+
     # Store a reference to the DSL so that we can dereference it during garbage collection.
     attr_accessor :dsl
 
@@ -82,6 +86,7 @@ module ActiveAdmin
     include ScopeTo
     include Sidebars
     include Routes
+    include Ordering
 
     # The class this resource wraps. If you register the Post model, Resource#resource_class
     # will point to the Post class
@@ -129,6 +134,12 @@ module ActiveAdmin
       @belongs_to
     end
 
+    def belongs_to_param
+      if belongs_to? && belongs_to_config.required?
+        belongs_to_config.to_param
+      end
+    end
+
     # Do we belong to another resource?
     def belongs_to?
       !!belongs_to_config
@@ -143,9 +154,13 @@ module ActiveAdmin
       instance_variable_defined?(:@breadcrumb) ? @breadcrumb : namespace.breadcrumb
     end
 
+    def order_clause
+      @order_clause || namespace.order_clause
+    end
+
     def find_resource(id)
       resource = resource_class.public_send *method_for_find(id)
-      decorator_class ? decorator_class.new(resource) : resource
+      (decorator_class && resource) ? decorator_class.new(resource) : resource
     end
 
     private

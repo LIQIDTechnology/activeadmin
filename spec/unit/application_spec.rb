@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'fileutils'
 
-describe ActiveAdmin::Application do
+RSpec.describe ActiveAdmin::Application do
 
   let(:application) do
     ActiveAdmin::Application.new.tap do |app|
@@ -89,6 +89,10 @@ describe ActiveAdmin::Application do
 
   it "should allow comments by default" do
     expect(application.comments).to eq true
+  end
+
+  it "should have default order clause class" do
+    expect(application.order_clause).to eq ActiveAdmin::OrderClause
   end
 
   describe "authentication settings" do

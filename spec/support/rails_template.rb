@@ -1,6 +1,10 @@
 # Rails template to build the sample app for specs
 
-generate :model, 'post title:string body:text published_at:datetime author_id:integer ' +
+if Rails::VERSION::MAJOR == 4 && Rails::VERSION::MINOR >= 2
+  copy_file File.expand_path('../templates/manifest.js', __FILE__), 'app/assets/config/manifest.js', force: true
+end
+
+generate :model, 'post title:string body:text published_date:date author_id:integer ' +
   'position:integer custom_category_id:integer starred:boolean foo_id:integer'
 create_file 'app/models/post.rb', <<-RUBY.strip_heredoc, force: true
   class Post < ActiveRecord::Base
@@ -10,14 +14,26 @@ create_file 'app/models/post.rb', <<-RUBY.strip_heredoc, force: true
     accepts_nested_attributes_for :author
     accepts_nested_attributes_for :taggings
 
+    ransacker :custom_title_searcher do |parent|
+      parent.table[:title]
+    end
+
+    ransacker :custom_created_at_searcher do |parent|
+      parent.table[:created_at]
+    end
+
+    ransacker :custom_searcher_numeric, type: :numeric do
+      # nothing to see here
+    end
+
     unless Rails::VERSION::MAJOR > 3 && !defined? ProtectedAttributes
-      attr_accessible :id, :title, :body, :starred, :author, :position, :published_at, :author_id, :custom_category_id
+      attr_accessible :id, :title, :body, :starred, :author, :position, :published_date, :author_id, :custom_category_id, :category
     end
   end
 RUBY
 copy_file File.expand_path('../templates/post_decorator.rb', __FILE__), 'app/models/post_decorator.rb'
 
-generate :model, 'blog/post title:string body:text published_at:datetime author_id:integer ' +
+generate :model, 'blog/post title:string body:text published_date:date author_id:integer ' +
   'position:integer custom_category_id:integer starred:boolean foo_id:integer'
 create_file 'app/models/blog/post.rb', <<-RUBY.strip_heredoc, force: true
   class Blog::Post < ActiveRecord::Base
@@ -28,7 +44,7 @@ create_file 'app/models/blog/post.rb', <<-RUBY.strip_heredoc, force: true
     accepts_nested_attributes_for :taggings
 
     unless Rails::VERSION::MAJOR > 3 && !defined? ProtectedAttributes
-      attr_accessible :title, :body, :starred, :author, :position, :published_at, :author_id, :custom_category_id
+      attr_accessible :title, :body, :starred, :author, :position, :published_date, :author_id, :custom_category_id, :category
     end
   end
 RUBY
@@ -41,6 +57,10 @@ create_file 'app/models/user.rb', <<-RUBY.strip_heredoc, force: true
     has_many :posts, foreign_key: 'author_id'
     has_one :profile
     accepts_nested_attributes_for :profile, allow_destroy: true
+
+    ransacker :age_in_five_years, type: :numeric, formatter: proc { |v| v.to_i - 5 } do |parent|
+      parent.table[:age]
+    end
 
     unless Rails::VERSION::MAJOR > 3 && !defined? ProtectedAttributes
       attr_accessible :first_name, :last_name, :username,  :age
@@ -55,6 +75,10 @@ RUBY
 create_file 'app/models/profile.rb', <<-RUBY.strip_heredoc, force: true
   class Profile < ActiveRecord::Base
     belongs_to :user
+
+    unless Rails::VERSION::MAJOR > 3 && !defined? ProtectedAttributes
+      attr_accessible :bio
+    end
   end
 RUBY
 
@@ -68,7 +92,7 @@ create_file 'app/models/category.rb', <<-RUBY.strip_heredoc, force: true
     accepts_nested_attributes_for :posts
 
     unless Rails::VERSION::MAJOR > 3 && !defined? ProtectedAttributes
-      attr_accessible :name
+      attr_accessible :name, :description
     end
   end
 RUBY
@@ -111,15 +135,21 @@ gsub_file 'config/environments/test.rb', /  config.cache_classes = true/, <<-RUB
   config.action_mailer.default_url_options = {host: 'example.com'}
   config.assets.digest = false
 
-RUBY
-
-# Add our local Active Admin to the load path
-inject_into_file 'config/environment.rb', <<-RUBY, after: "require File.expand_path('../application', __FILE__)"
-
-$LOAD_PATH.unshift '#{File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'lib'))}'
-require 'active_admin'
+  if Rails::VERSION::MAJOR >= 4 && Rails::VERSION::MINOR >= 1
+    config.active_record.maintain_test_schema = false
+  end
 
 RUBY
+
+# Add our local Active Admin to the application
+gem 'activeadmin', path: '../..'
+gem 'inherited_resources', git: 'https://github.com/activeadmin/inherited_resources'
+gem 'devise'
+
+run 'bundle install'
+
+# Setup Active Admin
+generate 'active_admin:install'
 
 # Force strong parameters to raise exceptions
 inject_into_file 'config/application.rb', <<-RUBY, after: 'class Application < Rails::Application'
@@ -137,10 +167,6 @@ directory File.expand_path('../templates/admin', __FILE__), 'app/admin'
 # Add predefined policies
 directory File.expand_path('../templates/policies', __FILE__), 'app/policies'
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
-
-generate 'active_admin:install'
-
 if ENV['RAILS_ENV'] != 'test'
   inject_into_file 'config/routes.rb', "\n  root to: redirect('admin')", after: /.*routes.draw do/
 end
@@ -151,7 +177,8 @@ remove_file 'public/index.html' if File.exists? 'public/index.html' # remove onc
 # https://github.com/plataformatec/devise/issues/2554
 gsub_file 'config/initializers/devise.rb', /# config.secret_key =/, 'config.secret_key ='
 
-rake 'db:migrate'
+rake "db:drop db:create db:migrate", env: 'development'
+rake "db:drop db:create db:migrate", env: 'test'
 
 if ENV['INSTALL_PARALLEL']
   inject_into_file 'config/database.yml', "<%= ENV['TEST_ENV_NUMBER'] %>", after: 'test.sqlite3'
